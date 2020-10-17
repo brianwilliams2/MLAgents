@@ -5,9 +5,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 
-/// <summary>
 /// A hummingbird Machine Learning Agent
-/// </summary>
 public class HummingbirdAgent : Agent
 {
     [Tooltip("Force to apply when moving")]
@@ -27,6 +25,8 @@ public class HummingbirdAgent : Agent
 
     [Tooltip("Whether this is training mode or gameplay mode")]
     public bool trainingMode;
+
+    private List<GameObject> collectedTargets = new List<GameObject>();
 
     // The rigidbody of the agent
     new private Rigidbody rigidbody;
@@ -52,14 +52,10 @@ public class HummingbirdAgent : Agent
     // Whether the agent is frozen (intentionally not flying)
     private bool frozen = false;
 
-    /// <summary>
     /// The amount of nectar the agent has obtained this episode
-    /// </summary>
     public float NectarObtained { get; private set; }
 
-    /// <summary>
     /// Initialize the agent
-    /// </summary>
     public override void Initialize()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -69,15 +65,13 @@ public class HummingbirdAgent : Agent
         if (!trainingMode) MaxStep = 0;
     }
 
-    /// <summary>
     /// Reset the agent when an episode begins
-    /// </summary>
     public override void OnEpisodeBegin()
     {
         if (trainingMode)
         {
             // Only reset flowers in training when there is one agent per area
-            flowerArea.ResetFlowers();
+            //flowerArea.ResetFlowers();
         }
 
         // Reset nectar obtained
@@ -88,21 +82,20 @@ public class HummingbirdAgent : Agent
         rigidbody.angularVelocity = Vector3.zero;
 
         // Default to spawning in front of a flower
-        bool inFrontOfFlower = true;
+        //bool inFrontOfFlower = true;
         if (trainingMode)
         {
             // Spawn in front of flower 50% of the time during training
-            inFrontOfFlower = UnityEngine.Random.value > .5f;
+            //inFrontOfFlower = UnityEngine.Random.value > .5f;
         }
 
         // Move the agent to a new random position
-        MoveToSafeRandomPosition(inFrontOfFlower);
+        //MoveToSafeRandomPosition(inFrontOfFlower);
 
         // Recalculate the nearest flower now that the agent has moved
-        UpdateNearestFlower();
+        //UpdateNearestFlower();
     }
 
-    /// <summary>
     /// Called when and action is received from either the player input or the neural network
     /// 
     /// vectorAction[i] represents:
@@ -111,8 +104,6 @@ public class HummingbirdAgent : Agent
     /// Index 2: move vector z (+1 = forward, -1 = backward)
     /// Index 3: pitch angle (+1 = pitch up, -1 = pitch down)
     /// Index 4: yaw angle (+1 = turn right, -1 = turn left)
-    /// </summary>
-    /// <param name="vectorAction">The actions to take</param>
     public override void OnActionReceived(float[] vectorAction)
     {
         // Don't take actions if frozen
@@ -147,10 +138,7 @@ public class HummingbirdAgent : Agent
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
-    /// <summary>
     /// Collect vector observations from the environment
-    /// </summary>
-    /// <param name="sensor">The vector sensor</param>
     public override void CollectObservations(VectorSensor sensor)
     {
         // If nearestFlower is null, observe an empty array and return early
@@ -183,12 +171,8 @@ public class HummingbirdAgent : Agent
         // 10 total observations
     }
 
-    /// <summary>
     /// When Behavior Type is set to "Heuristic Only" on the agent's Behavior Parameters,
     /// this function will be called. Its return values will be fed into
-    /// <see cref="OnActionReceived(float[])"/> instead of using the neural network
-    /// </summary>
-    /// <param name="actionsOut">And output action array</param>
     public override void Heuristic(float[] actionsOut)
     {
         // Create placeholders for all movement/turning
@@ -252,11 +236,8 @@ public class HummingbirdAgent : Agent
         rigidbody.WakeUp();
     }
 
-    /// <summary>
     /// Move the agent to a safe random position (i.e. does not collide with anything)
     /// If in front of flower, also point the beak at the flower
-    /// </summary>
-    /// <param name="inFrontOfFlower">Whether to choose a spot in front of a flower</param>
     private void MoveToSafeRandomPosition(bool inFrontOfFlower)
     {
         bool safePositionFound = false;
@@ -315,10 +296,8 @@ public class HummingbirdAgent : Agent
         transform.rotation = potentialRotation;
     }
 
-    /// <summary>
     /// Update the nearest flower to the agent
-    /// </summary>
-    private void UpdateNearestFlower()
+    /*private void UpdateNearestFlower()
     {
         foreach (Flower flower in flowerArea.Flowers)
         {
@@ -340,34 +319,25 @@ public class HummingbirdAgent : Agent
                 }
             }
         }
-    }
+    }*/
 
-    /// <summary>
     /// Called when the agent's collider enters a trigger collider
-    /// </summary>
-    /// <param name="other">The trigger collider</param>
     private void OnTriggerEnter(Collider other)
     {
         TriggerEnterOrStay(other);
     }
 
-    /// <summary>
     /// Called when the agent's collider stays in a trigger collider
-    /// </summary>
-    /// <param name="other">The trigger collider</param>
     private void OnTriggerStay(Collider other)
     {
         TriggerEnterOrStay(other);
     }
 
-    /// <summary>
     /// Handles when the agen'ts collider enters or stays in a trigger collider
-    /// </summary>
-    /// <param name="collider">The trigger collider</param>
     private void TriggerEnterOrStay(Collider collider)
     {
         // Check if agent is colliding with nectar
-        if (collider.CompareTag("nectar"))
+        /*if (collider.CompareTag("nectar"))
         {
             Vector3 closestPointToBeakTip = collider.ClosestPoint(beakTip.position);
 
@@ -398,13 +368,10 @@ public class HummingbirdAgent : Agent
                     UpdateNearestFlower();
                 }
             }
-        }
+        }*/
     }
 
-    /// <summary>
     /// Called when the agent collides with something solid
-    /// </summary>
-    /// <param name="collision">The collision info</param>
     private void OnCollisionEnter(Collision collision)
     {
         if (trainingMode && collision.collider.CompareTag("boundary"))
@@ -412,25 +379,5 @@ public class HummingbirdAgent : Agent
             // Collided with the area boundary, give a negative reward
             AddReward(-.5f);
         }
-    }
-
-    /// <summary>
-    /// Called every frame
-    /// </summary>
-    private void Update()
-    {
-        // Draw a line from the beak tip to the nearest flower
-        if (nearestFlower != null)
-            Debug.DrawLine(beakTip.position, nearestFlower.FlowerCenterPosition, Color.green);
-    }
-
-    /// <summary>
-    /// Called every .02 seconds
-    /// </summary>
-    private void FixedUpdate()
-    {
-        // Avoids scenario where nearest flower nectar is stolen by opponent and not updated
-        if (nearestFlower != null && !nearestFlower.HasNectar)
-            UpdateNearestFlower();
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-/// <summary>
 /// Manages game logic and controls the UI
-/// </summary>
 public class GameManager : MonoBehaviour
 {
     [Tooltip("Game ends when an agent collects this much nectar")]
@@ -30,9 +28,7 @@ public class GameManager : MonoBehaviour
     // When the game timer started
     private float gameTimerStartTime;
 
-    /// <summary>
     /// All possible game states
-    /// </summary>
     public enum GameState
     {
         Default,
@@ -42,14 +38,10 @@ public class GameManager : MonoBehaviour
         Gameover
     }
 
-    /// <summary>
     /// The current game state
-    /// </summary>
     public GameState State { get; private set; } = GameState.Default;
 
-    /// <summary>
     /// Gets the time remaining in the game
-    /// </summary>
     public float TimeRemaining
     {
         get
@@ -66,9 +58,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Handles a button click in different states
-    /// </summary>
     public void ButtonClicked()
     {
         if (State == GameState.Gameover)
@@ -87,9 +77,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Called when the game starts
-    /// </summary>
     private void Start()
     {
         // Subscribe to button click events from the UI
@@ -99,18 +87,14 @@ public class GameManager : MonoBehaviour
         MainMenu();
     }
 
-    /// <summary>
     /// Called on destroy
-    /// </summary>
     private void OnDestroy()
     {
         // Unsubscribe from button click events from the UI
         uiController.OnButtonClicked -= ButtonClicked;
     }
 
-    /// <summary>
     /// Shows the main menu
-    /// </summary>
     private void MainMenu()
     {
         // Set the state to "main menu"
@@ -126,7 +110,7 @@ public class GameManager : MonoBehaviour
         opponent.agentCamera.gameObject.SetActive(false); // Never turn this back on
 
         // Reset the flowers
-        flowerArea.ResetFlowers();
+        //flowerArea.ResetFlowers();
 
         // Reset the agents
         player.OnEpisodeBegin();
@@ -137,10 +121,7 @@ public class GameManager : MonoBehaviour
         opponent.FreezeAgent();
     }
 
-    /// <summary>
     /// Starts the game with a countdown
-    /// </summary>
-    /// <returns>IEnumerator</returns>
     private IEnumerator StartGame()
     {
         // Set the state to "preparing"
@@ -176,9 +157,7 @@ public class GameManager : MonoBehaviour
         opponent.UnfreezeAgent();
     }
 
-    /// <summary>
     /// Ends the game
-    /// </summary>
     private void EndGame()
     {
         // Set the game state to "game over"
@@ -202,9 +181,7 @@ public class GameManager : MonoBehaviour
         uiController.ShowButton("Main Menu");
     }
 
-    /// <summary>
     /// Called every frame
-    /// </summary>
     private void Update()
     {
         if (State == GameState.Playing)
