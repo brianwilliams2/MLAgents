@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Hummingbird/Scenes/FlowerIsland.unity
+- path: Assets/Hummingbird/Scenes/BatGame.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
