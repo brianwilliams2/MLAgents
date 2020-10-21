@@ -1,0 +1,5 @@
+model_checkpoint_path: "Hummingbird-1705608.ckpt"
+all_model_checkpoint_paths: "Hummingbird-499608.ckpt"
+all_model_checkpoint_paths: "Hummingbird-999512.ckpt"
+all_model_checkpoint_paths: "Hummingbird-1499584.ckpt"
+all_model_checkpoint_paths: "Hummingbird-1705608.ckpt"

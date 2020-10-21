@@ -1,0 +1,23 @@
+{
+    "Hummingbird": {
+        "checkpoints": [
+            {
+                "steps": 2512,
+                "file_path": "results\\hb_03\\Hummingbird\\Hummingbird-2512.nn",
+                "reward": -0.29850000888109207,
+                "creation_time": 1603081415.6393495
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 2512,
+            "file_path": "results\\hb_03\\Hummingbird.nn",
+            "reward": -0.29850000888109207,
+            "creation_time": 1603081415.6393495
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.1.0",
+        "mlagents_version": "0.21.0",
+        "tensorflow_version": "2.3.1"
+    }
+}

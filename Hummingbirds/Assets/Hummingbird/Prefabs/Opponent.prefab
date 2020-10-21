@@ -159,7 +159,6 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_CameraOutput: 0
   m_Cameras: []
   m_RendererIndex: -1
   m_VolumeLayerMask:
@@ -171,6 +170,7 @@ MonoBehaviour:
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
+  m_ClearDepth: 1
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
@@ -333,8 +333,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.04
-  m_Center: {x: 0, y: -0.04, z: -0.04}
+  m_Radius: 0.035754383
+  m_Center: {x: 0, y: -0.04, z: -0.0741806}
 --- !u!135 &5360825189114624169
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -375,12 +375,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
+    VectorObservationSize: 8
     NumStackedVectorObservations: 1
     VectorActionSize: 05000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
-  m_Model: {fileID: 5022602860645237092, guid: cebc103df167b5f4eb6f5d4fa54d78a0, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 5d41c2e121c6c1840bc7f36583f52cfb, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Hummingbird
@@ -402,12 +402,15 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
-  moveForce: 2
+  player: {fileID: 0}
+  moveForce: 8
   pitchSpeed: 100
   yawSpeed: 100
   beakTip: {fileID: 3399944470534067459}
   agentCamera: {fileID: 4975668027623203742}
   trainingMode: 0
+  nearestFlower: {fileID: 0}
+  targetTime: 3
 --- !u!114 &6917622702379917450
 MonoBehaviour:
   m_ObjectHideFlags: 0
