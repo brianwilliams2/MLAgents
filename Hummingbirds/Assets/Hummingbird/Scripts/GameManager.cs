@@ -1,13 +1,18 @@
 ﻿using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
-/// <summary>
 /// Manages game logic and controls the UI
-/// </summary>
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+
     [Tooltip("Game ends when an agent collects this much nectar")]
     public float maxNectar = 8f;
+
+    public int mosquitos = 10;
+
+    public GameObject mosquitoPrefab;
 
     [Tooltip("Game ends after this many seconds have elapsed")]
     public float timerAmount = 60f;
@@ -15,11 +20,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("The UI Controller")]
     public UIController uiController;
 
-    [Tooltip("The player hummingbird")]
-    public HummingbirdAgent player;
-
-    [Tooltip("The ML-Agent opponent hummingbird")]
-    public HummingbirdAgent opponent;
+    [Tooltip("The player")]
+    public GameObject player;
 
     [Tooltip("The flower area")]
     public FlowerArea flowerArea;
@@ -30,9 +32,11 @@ public class GameManager : MonoBehaviour
     // When the game timer started
     private float gameTimerStartTime;
 
-    /// <summary>
+    public List<GameObject> mosquitoList = new List<GameObject>();
+
+    public int enemyScore;
+
     /// All possible game states
-    /// </summary>
     public enum GameState
     {
         Default,
@@ -42,14 +46,10 @@ public class GameManager : MonoBehaviour
         Gameover
     }
 
-    /// <summary>
     /// The current game state
-    /// </summary>
     public GameState State { get; private set; } = GameState.Default;
 
-    /// <summary>
     /// Gets the time remaining in the game
-    /// </summary>
     public float TimeRemaining
     {
         get
@@ -87,11 +87,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Called when the game starts
-    /// </summary>
     private void Start()
-    {
+    {        
+        instance = this;
+
+        Cursor.lockState = CursorLockMode.Confined;
+
+        for (int i = 0; i < mosquitos; i++)
+        {
+            GameObject go = Instantiate(mosquitoPrefab, transform.parent);
+            mosquitoList.Add(go);
+        }
+
         // Subscribe to button click events from the UI
         uiController.OnButtonClicked += ButtonClicked;
 
@@ -99,18 +107,14 @@ public class GameManager : MonoBehaviour
         MainMenu();
     }
 
-    /// <summary>
     /// Called on destroy
-    /// </summary>
     private void OnDestroy()
     {
         // Unsubscribe from button click events from the UI
         uiController.OnButtonClicked -= ButtonClicked;
     }
 
-    /// <summary>
     /// Shows the main menu
-    /// </summary>
     private void MainMenu()
     {
         // Set the state to "main menu"
@@ -122,37 +126,38 @@ public class GameManager : MonoBehaviour
 
         // Use the main camera, disable agent cameras
         mainCamera.gameObject.SetActive(true);
-        player.agentCamera.gameObject.SetActive(false);
-        opponent.agentCamera.gameObject.SetActive(false); // Never turn this back on
+        player.SetActive(false);
+        player.GetComponent<Rigidbody>().isKinematic = true;
 
-        // Reset the flowers
-        flowerArea.ResetFlowers();
-
-        // Reset the agents
-        player.OnEpisodeBegin();
-        opponent.OnEpisodeBegin();
-
-        // Freeze the agents
-        player.FreezeAgent();
-        opponent.FreezeAgent();
     }
 
-    /// <summary>
     /// Starts the game with a countdown
-    /// </summary>
-    /// <returns>IEnumerator</returns>
     private IEnumerator StartGame()
     {
+        foreach (GameObject mosquito in mosquitoList)
+        {
+            Destroy(mosquito);
+        }
+        mosquitoList.Clear();
+        for (int i = 0; i < mosquitos; i++)
+        {
+            GameObject go = Instantiate(mosquitoPrefab, transform.parent);
+            mosquitoList.Add(go);
+            go.GetComponent<HummingbirdAgent>().OnEpisodeBegin();
+            go.GetComponent<HummingbirdAgent>().FreezeAgent();
+        }
+
         // Set the state to "preparing"
         State = GameState.Preparing;
 
         // Update the UI (hide it)
         uiController.ShowBanner("");
         uiController.HideButton();
+        uiController.SetOpponentNectar(enemyScore / maxNectar);
 
         // Use the player camera, disable the main camera
         mainCamera.gameObject.SetActive(false);
-        player.agentCamera.gameObject.SetActive(true);
+        player.SetActive(true);
 
         // Show countdown
         uiController.ShowBanner("3");
@@ -172,55 +177,64 @@ public class GameManager : MonoBehaviour
         gameTimerStartTime = Time.time;
 
         // Unfreeze the agents
-        player.UnfreezeAgent();
-        opponent.UnfreezeAgent();
+        //player.UnfreezeAgent();
+        foreach (GameObject mosquito in mosquitoList)
+        {
+            print("unfroze");
+            mosquito.GetComponent<HummingbirdAgent>().UnfreezeAgent();
+        }
+
+        player.GetComponent<Rigidbody>().isKinematic = false;
+
     }
 
-    /// <summary>
     /// Ends the game
-    /// </summary>
     private void EndGame()
     {
         // Set the game state to "game over"
         State = GameState.Gameover;
 
         // Freeze the agents
-        player.FreezeAgent();
-        opponent.FreezeAgent();
+        //player.FreezeAgent();
+        foreach (GameObject mosquito in GameManager.instance.mosquitoList)
+        {
+            mosquito.GetComponent<HummingbirdAgent>().FreezeAgent();
+        }
 
         // Update banner text depending on win/lose
-        if (player.NectarObtained >= opponent.NectarObtained )
+        if (enemyScore < maxNectar)
         {
             uiController.ShowBanner("You win!");
         }
         else
         {
-            uiController.ShowBanner("ML-Agent wins!");
+            uiController.ShowBanner("You Lose!");
         }
 
         // Update button text
         uiController.ShowButton("Main Menu");
     }
 
-    /// <summary>
     /// Called every frame
-    /// </summary>
     private void Update()
     {
         if (State == GameState.Playing)
         {
             // Check to see if time has run out or either agent got the max nectar amount
-            if (TimeRemaining <= 0f ||
-                player.NectarObtained >= maxNectar ||
-                opponent.NectarObtained >= maxNectar)
+            if (enemyScore >= maxNectar)
+            {
+                EndGame();
+            }
+
+            if (mosquitoList.Count == 0)
             {
                 EndGame();
             }
 
             // Update the timer and nectar progress bars
             uiController.SetTimer(TimeRemaining);
-            uiController.SetPlayerNectar(player.NectarObtained / maxNectar);
-            uiController.SetOpponentNectar(opponent.NectarObtained / maxNectar);
+            //uiController.SetPlayerNectar(player.NectarObtained / maxNectar);
+            uiController.SetOpponentNectar(enemyScore / maxNectar);
         }
         else if (State == GameState.Preparing || State == GameState.Gameover)
         {
@@ -233,8 +247,8 @@ public class GameManager : MonoBehaviour
             uiController.SetTimer(-1f);
 
             // Update the progress bars
-            uiController.SetPlayerNectar(0f);
-            uiController.SetOpponentNectar(0f);
+            enemyScore = 0;
+            uiController.SetOpponentNectar(enemyScore / maxNectar);
         }
 
     }

@@ -8,6 +8,7 @@ TagManager:
   - nectar
   - boundary
   - Enemy
+  - BatRadius
   layers:
   - Default
   - TransparentFX
