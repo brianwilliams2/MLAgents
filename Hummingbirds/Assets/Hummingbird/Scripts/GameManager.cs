@@ -129,13 +129,6 @@ public class GameManager : MonoBehaviour
         player.SetActive(false);
         player.GetComponent<Rigidbody>().isKinematic = true;
 
-        // Freeze the agents
-        //player.FreezeAgent();
-        foreach (GameObject mosquito in mosquitoList)
-        {
-            mosquito.GetComponent<HummingbirdAgent>().OnEpisodeBegin();
-            mosquito.GetComponent<HummingbirdAgent>().FreezeAgent();
-        }
     }
 
     /// Starts the game with a countdown
@@ -150,6 +143,8 @@ public class GameManager : MonoBehaviour
         {
             GameObject go = Instantiate(mosquitoPrefab, transform.parent);
             mosquitoList.Add(go);
+            go.GetComponent<HummingbirdAgent>().OnEpisodeBegin();
+            go.GetComponent<HummingbirdAgent>().FreezeAgent();
         }
 
         // Set the state to "preparing"
@@ -183,8 +178,9 @@ public class GameManager : MonoBehaviour
 
         // Unfreeze the agents
         //player.UnfreezeAgent();
-        foreach (GameObject mosquito in GameManager.instance.mosquitoList)
+        foreach (GameObject mosquito in mosquitoList)
         {
+            print("unfroze");
             mosquito.GetComponent<HummingbirdAgent>().UnfreezeAgent();
         }
 
